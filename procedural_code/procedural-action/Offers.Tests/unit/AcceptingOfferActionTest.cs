@@ -5,6 +5,8 @@ namespace Offers.Tests.unit;
 
 public class AcceptingOfferActionTest
 {
+    private const decimal Price = 1.0m;
+    private const string ProductId = "productId";
     private OffersGateway _offersGateway;
     private OffersValidator _offersValidator;
     private OffersAcceptor _offersAcceptor;
@@ -28,8 +30,8 @@ public class AcceptingOfferActionTest
     public void accepting_an_offer()
     {
         var offerId = _anOfferId;
-        var notYetAcceptedOffer = Offer.NotYetAccepted(offerId);
-        var acceptedOffer = Offer.Accepted(offerId);
+        var notYetAcceptedOffer = Offer.NotYetAccepted(offerId, Price, ProductId);
+        var acceptedOffer = Offer.Accepted(offerId, Price, ProductId);
         _offersGateway.Retrieve(offerId).Returns(notYetAcceptedOffer);
         _offersAcceptor.Accept(notYetAcceptedOffer).Returns(acceptedOffer);
 
@@ -47,7 +49,7 @@ public class AcceptingOfferActionTest
     [Test]
     public void accepting_an_offer_fails()
     {
-        var notYetAcceptedOffer = Offer.NotYetAccepted(_anOfferId);
+        var notYetAcceptedOffer = Offer.NotYetAccepted(_anOfferId, Price, ProductId);
         _offersGateway.Retrieve(_anOfferId).Returns(notYetAcceptedOffer);
         _offersValidator.When(x => x.Validate(notYetAcceptedOffer))
             .Do(x => throw new InvalidOfferException(notYetAcceptedOffer));

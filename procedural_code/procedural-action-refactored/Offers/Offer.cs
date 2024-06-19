@@ -2,50 +2,34 @@ using System;
 
 namespace Offers;
 
-public abstract class Offer
+public class Offer
 {
-    private readonly OfferId _id;
     private readonly bool _accepted;
+    private readonly decimal _price;
+    private readonly string _productId;
+    private readonly OfferId _id;
 
-    protected Offer(OfferId id, bool accepted)
+    private Offer(OfferId id, bool accepted, decimal price,  string productId)
     {
         _id = id;
         _accepted = accepted;
+        _price = price;
+        _productId = productId;
     }
 
-    public Offer Validate(OffersValidator offersValidator)
-    {
-        offersValidator.Validate(this);
-        return this;
-    }
-    
     public Offer Accept()
     {
-        return Accepted(_id);
+        return Accepted(_id, _price, _productId);
     }
 
-    public static Offer Accepted(OfferId id)
+    public static Offer Accepted(OfferId id, decimal price, string productId)
     {
-        return new AcceptedOffer(id);
+        return new Offer(id, true, price,  productId);
     }
 
-    public static Offer NotYetAccepted(OfferId id)
+    public static Offer NotYetAccepted(OfferId id, decimal price, string productId)
     {
-        return new NotYetAcceptedOffer(id);
-    }
-
-    private class NotYetAcceptedOffer : Offer
-    {
-        public NotYetAcceptedOffer(OfferId id) : base(id, false)
-        {
-        }
-    }
-
-    private class AcceptedOffer : Offer
-    {
-        public AcceptedOffer(OfferId id) : base(id, true)
-        {
-        }
+        return new Offer(id, false, price,  productId);
     }
 
     protected bool Equals(Offer other)
@@ -57,7 +41,7 @@ public abstract class Offer
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((Offer)obj);
     }
 

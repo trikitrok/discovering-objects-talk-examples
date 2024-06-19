@@ -17,7 +17,7 @@ public class AcceptingOfferAction
     public void DoAction(OfferId id)
     {
         var offer = _offersGateway.Retrieve(id);
-        
+
         _offersRepository.Save(offer.Accept());
     }
 }
