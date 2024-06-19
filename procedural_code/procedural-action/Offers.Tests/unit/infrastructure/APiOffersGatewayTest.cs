@@ -1,4 +1,3 @@
-using ApprovalTests.Scrubber;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
@@ -13,10 +12,10 @@ public class APiOffersGatewayTest
     private const string OfferId = "offerId";
     private const decimal Price = 1.0m;
     private const string ProductId = "productId";
-    private OffersGateway _offersGateway;
     private ApiClient<OfferResponseData> _apiClient;
-    private string _uri;
     private OfferId _offerId;
+    private OffersGateway _offersGateway;
+    private string _uri;
 
     [SetUp]
     public void SetUp()
@@ -30,9 +29,9 @@ public class APiOffersGatewayTest
     [Test]
     public void retrieving_an_offer_succeeds()
     {
-        _apiClient.GetApiResponse(_uri).Returns(new List<OfferResponseData>()
+        _apiClient.GetApiResponse(_uri).Returns(new List<OfferResponseData>
         {
-            new OfferResponseData(OfferId, Price, ProductId)
+            new(OfferId, Price, ProductId)
         });
 
         var offer = _offersGateway.Retrieve(_offerId);

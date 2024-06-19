@@ -14,7 +14,7 @@ public class APiOffersGateway : OffersGateway
         _apiBaseUrl = apiBaseUrl;
         _apiClient = apiClient;
     }
-    
+
     public Offer Retrieve(OfferId id)
     {
         try
@@ -23,12 +23,12 @@ public class APiOffersGateway : OffersGateway
             var responseData = _apiClient.GetApiResponse(uri);
             return CreateOfferFrom(responseData.First());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new OfferRetrievalException(e);
         }
     }
-    
+
     private Offer CreateOfferFrom(OfferResponseData response)
     {
         return Offer.NotYetAccepted(new OfferId(response.OfferId), response.Price, response.ProductId);
@@ -42,14 +42,14 @@ public class APiOffersGateway : OffersGateway
 
 public class OfferResponseData
 {
-    public string OfferId { get; }
-    public string ProductId { get; }
-    public decimal Price { get; }
-
     public OfferResponseData(string offerId, decimal price, string productId)
     {
         OfferId = offerId;
         Price = price;
         ProductId = productId;
     }
+
+    public string OfferId { get; }
+    public string ProductId { get; }
+    public decimal Price { get; }
 }

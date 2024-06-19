@@ -2,10 +2,10 @@ namespace Offers;
 
 public class AcceptingOfferAction
 {
-    private readonly OffersGateway _offersGateway;
-    private readonly OffersValidator _offersValidator;
     private readonly OffersAcceptor _offersAcceptor;
+    private readonly OffersGateway _offersGateway;
     private readonly OffersRepository _offersRepository;
+    private readonly OffersValidator _offersValidator;
 
     public AcceptingOfferAction(
         OffersGateway offersGateway,

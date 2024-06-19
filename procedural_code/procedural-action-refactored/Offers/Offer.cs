@@ -5,11 +5,11 @@ namespace Offers;
 public class Offer
 {
     private readonly bool _accepted;
+    private readonly OfferId _id;
     private readonly decimal _price;
     private readonly string _productId;
-    private readonly OfferId _id;
 
-    private Offer(OfferId id, bool accepted, decimal price,  string productId)
+    private Offer(OfferId id, bool accepted, decimal price, string productId)
     {
         _id = id;
         _accepted = accepted;
@@ -24,12 +24,12 @@ public class Offer
 
     public static Offer Accepted(OfferId id, decimal price, string productId)
     {
-        return new Offer(id, true, price,  productId);
+        return new Offer(id, true, price, productId);
     }
 
     public static Offer NotYetAccepted(OfferId id, decimal price, string productId)
     {
-        return new Offer(id, false, price,  productId);
+        return new Offer(id, false, price, productId);
     }
 
     protected bool Equals(Offer other)

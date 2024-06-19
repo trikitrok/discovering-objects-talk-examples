@@ -7,12 +7,12 @@ public class AcceptingOfferActionTest
 {
     private const decimal Price = 1.0m;
     private const string ProductId = "productId";
-    private OffersGateway _offersGateway;
-    private OffersValidator _offersValidator;
-    private OffersAcceptor _offersAcceptor;
-    private OffersRepository _offersRepository;
     private AcceptingOfferAction _acceptingOfferAction;
     private OfferId _anOfferId;
+    private OffersAcceptor _offersAcceptor;
+    private OffersGateway _offersGateway;
+    private OffersRepository _offersRepository;
+    private OffersValidator _offersValidator;
 
     [SetUp]
     public void SetUp()

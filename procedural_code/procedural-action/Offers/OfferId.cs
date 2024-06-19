@@ -8,7 +8,7 @@ public class OfferId
     {
         _offerId = offerId;
     }
-    
+
     public string AsText()
     {
         return _offerId;
@@ -29,7 +29,7 @@ public class OfferId
 
     public override int GetHashCode()
     {
-        return (_offerId != null ? _offerId.GetHashCode() : 0);
+        return _offerId != null ? _offerId.GetHashCode() : 0;
     }
 
     public override string ToString()

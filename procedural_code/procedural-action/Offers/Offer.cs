@@ -5,9 +5,9 @@ namespace Offers;
 public class Offer
 {
     private readonly OfferId _id;
-    private bool _accepted;
     private readonly decimal _price;
     private readonly string _productId;
+    private bool _accepted;
 
     private Offer(OfferId id, bool accepted, decimal price, string productId)
     {
@@ -26,7 +26,7 @@ public class Offer
     {
         return new Offer(id, true, price, productId);
     }
-    
+
     public static Offer NotYetAccepted(OfferId id, decimal price, string productId)
     {
         return new Offer(id, false, price, productId);
@@ -34,14 +34,15 @@ public class Offer
 
     protected bool Equals(Offer other)
     {
-        return Equals(_id, other._id) && _accepted == other._accepted && _price == other._price && _productId == other._productId;
+        return Equals(_id, other._id) && _accepted == other._accepted && _price == other._price &&
+               _productId == other._productId;
     }
 
     public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((Offer)obj);
     }
 
