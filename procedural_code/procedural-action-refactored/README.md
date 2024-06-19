@@ -1,3 +1,3 @@
 # UserAccount
 
-An example of procedural code.
+An example of refactored procedural code.

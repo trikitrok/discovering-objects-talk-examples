@@ -1,3 +1,3 @@
 # UserAccount
 
-An example of too many responsibilities.
+An example of code with too many responsibilities.
