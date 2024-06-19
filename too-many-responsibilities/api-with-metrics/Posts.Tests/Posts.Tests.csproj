@@ -33,10 +33,11 @@
     </Target>
 
     <ItemGroup>
-        <ProjectReference Include="..\Posts\Posts.csproj" />
+        <ProjectReference Include="..\Posts\Posts.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="integration\" />
+        <Folder Include="integration\"/>
+        <Folder Include="unit\"/>
     </ItemGroup>
 </Project>

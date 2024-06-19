@@ -4,7 +4,7 @@ namespace Posts;
 
 public class User
 {
-    private Id _id;
+    private readonly Id _id;
 
     public User(Id id)
     {

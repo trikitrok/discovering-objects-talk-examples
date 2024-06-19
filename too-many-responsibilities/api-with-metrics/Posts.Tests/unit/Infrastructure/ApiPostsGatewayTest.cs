@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using Posts.infrastructure;
 
-namespace Posts.Tests.integration.Infrastructure;
+namespace Posts.Tests.unit.Infrastructure;
 
 public class ApiPostsGatewayTest
 {
@@ -11,9 +11,9 @@ public class ApiPostsGatewayTest
     [SetUp]
     public void SetUp()
     {
-        _apiPostsGateway = new ApiPostsGateway(ApiBaseUrl);
+        _apiPostsGateway = new ApiPostsGateway(ApiBaseUrl, new HttpApiClient<PostData>());
     }
-    
+
     // some integration tests
     // 
 }

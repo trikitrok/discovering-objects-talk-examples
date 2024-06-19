@@ -2,7 +2,7 @@ namespace UserAccount;
 
 public class Id
 {
-    private string _id;
+    private readonly string _id;
 
     public Id(string id)
     {

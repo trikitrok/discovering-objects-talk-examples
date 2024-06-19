@@ -6,12 +6,14 @@ namespace Posts.infrastructure;
 
 public class ApiPostsGateway : PostsGateway
 {
-    private readonly string _apiBaseUrl;
     private const int ApiVersion = 2;
-    
-    public ApiPostsGateway(string apiBaseUrl)
+    private readonly string _apiBaseUrl;
+    private readonly ApiClient<PostData> _apiClient;
+
+    public ApiPostsGateway(string apiBaseUrl, ApiClient<PostData> apiClient)
     {
         _apiBaseUrl = apiBaseUrl;
+        _apiClient = apiClient;
     }
 
     public List<Post> RetrievePostsFor(User user)
@@ -19,11 +21,9 @@ public class ApiPostsGateway : PostsGateway
         var posts = new List<Post>();
         try
         {
-            var apiClient = new HttpGenericApiClient<PostData>();
-
             var uri = CreateUriFor(user);
-            
-            var responseData = apiClient.GetApiResponse(uri);
+
+            var responseData = _apiClient.GetApiResponse(uri);
 
             foreach (var postResponse in responseData)
             {
@@ -35,6 +35,7 @@ public class ApiPostsGateway : PostsGateway
         {
             throw new PostRetrievalException(e);
         }
+
         return posts;
     }
 
@@ -47,12 +48,12 @@ public class ApiPostsGateway : PostsGateway
     {
         return _apiBaseUrl + "/posts?version=" + ApiVersion + "&" + user.Id().AsText();
     }
-    
-    private class PostData
-    {
-        public string userId { get; set; }
-        public string postId { get; set; }
-        public string title { get; set; }
-        public string text { get; set; }
-    }
+}
+
+public class PostData
+{
+    public string userId { get; }
+    public string postId { get; }
+    public string title { get; }
+    public string text { get; }
 }
