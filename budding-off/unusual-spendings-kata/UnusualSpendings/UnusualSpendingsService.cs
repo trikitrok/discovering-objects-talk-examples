@@ -57,17 +57,20 @@ public class UnusualSpendingsService
         public string ComposeAlertText(List<UnsusualSpending> unsusualSpendings, UserContactData contactData,
             out UserContactData userContactData)
         {
-            var alertText = Greeting();
+            var alertText = Introduction();
             var unsusualSpending = unsusualSpendings.First();
             userContactData = contactData;
             var spendingCategories = unsusualSpending.SpendingCategories();
             var spendingCategory = spendingCategories.First();
-            alertText += "We have detected unusually high spending on your card in these categories:\n\n" +
-                         $"* You spent {spendingCategory.CurrencySymbol()}" +
-                         $"{spendingCategory.TotalAmountspent().ToString("f2", _cultureInfo)} " +
-                         $"on {spendingCategory.Name()}\n";
+            alertText += CategoryLine(spendingCategory);
             alertText += Footer();
             return alertText;
+        }
+
+        private static string Introduction()
+        {
+            return "Hello card user!\n\n" +
+                   "We have detected unusually high spending on your card in these categories:\n\n";
         }
 
         private string Footer()
@@ -75,10 +78,24 @@ public class UnusualSpendingsService
             return "\nLove,\n\nThe Credit Card Company\n";
         }
 
+        private string CategoryLine(SpendingCategory category)
+        {
+            return FormatSpentMoney(category) + $"on {category.Name()}\n";
+        }
+
         private string Greeting()
         {
             return $"Hello card user!\n\n";
         }
-    }
 
+        private string FormatSpentMoney(SpendingCategory category)
+        {
+            return $"* You spent {category.CurrencySymbol()}{FormatAmount(category.TotalAmountspent())} ";
+        }
+
+        private string FormatAmount(decimal amount)
+        {
+            return amount.ToString("f2", _cultureInfo);
+        }
+    }
 }
