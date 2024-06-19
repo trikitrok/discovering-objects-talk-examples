@@ -1,3 +1,3 @@
 # UserAccount
 
-An example of budding-off.
+An example of too many responsibilities.

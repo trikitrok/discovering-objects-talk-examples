@@ -1,69 +1,59 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Text.Json;
+using System.Linq;
 using UserAccount;
 
 namespace Posts.infrastructure;
 
 public class ApiPostsGateway : PostsGateway
 {
-    private readonly string _apiBaseUrl;
     private const int ApiVersion = 2;
-    
-    public ApiPostsGateway(string apiBaseUrl)
+    private readonly string _apiBaseUrl;
+    private readonly ApiClient<PostResponseData> _apiClient;
+
+    public ApiPostsGateway(string apiBaseUrl, ApiClient<PostResponseData> apiClient)
     {
         _apiBaseUrl = apiBaseUrl;
+        _apiClient = apiClient;
     }
 
     public List<Post> RetrievePostsFor(User user)
     {
-        var posts = new List<Post>();
         try
         {
-            using var client = new HttpClient();
-            var response = RequestResponse(client, CreateUriFor(user));
-            var responseStream = response.Content.ReadAsStreamAsync().Result;
-            var responseData = JsonSerializer.DeserializeAsync<List<PostApiResponse>>(responseStream).Result;
-            
-            foreach (var postResponse in responseData)
-            {
-                var post = CreatePostFrom(postResponse);
-                posts.Add(post);
-            }
+            var uri = CreateUriFor(user);
+            var responseData = _apiClient.GetApiResponse(uri);
+            return responseData.Select(CreatePostFrom).ToList();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             throw new PostRetrievalException(e);
         }
-        return posts;
     }
 
-    private HttpResponseMessage RequestResponse(HttpClient client, string uri)
+    private Post CreatePostFrom(PostResponseData response)
     {
-        var response = client.GetAsync(uri).Result;
-        if (response.StatusCode != HttpStatusCode.OK) {
-            throw new APiErrorResponseException( response.StatusCode.ToString());
-        }
-        return response;
-    }
-
-    private Post CreatePostFrom(PostApiResponse response)
-    {
-        return new Post(new Id(response.postId), response.title, response.text, new Id(response.userId));
+        return new Post(new Id(response.PostId), response.Title, response.Text, new Id(response.UserId));
     }
 
     private string CreateUriFor(User user)
     {
-        return _apiBaseUrl + "/posts?version=" + ApiVersion + "&" + user.Id().AsText();
+        return $"{_apiBaseUrl}/posts/?version={ApiVersion}&userId={user.Id().AsText()}";
     }
-    
-    private class PostApiResponse
+}
+
+public class PostResponseData
+{
+    public string UserId { get; }
+    public string PostId { get; }
+    public string Title { get; }
+    public string Text { get; }
+
+    public PostResponseData(string userId, string postId, string title, string text)
     {
-        public string userId { get; set; }
-        public string postId { get; set; }
-        public string title { get; set; }
-        public string text { get; set; }
+        UserId = userId;
+        PostId = postId;
+        Title = title;
+        Text = text;
     }
 }
