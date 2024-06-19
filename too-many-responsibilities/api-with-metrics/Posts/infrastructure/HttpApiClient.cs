@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
+using static System.Text.Json.JsonSerializer;
 
 namespace Posts.infrastructure;
 
@@ -10,12 +10,12 @@ public class HttpApiClient<T> : ApiClient<T>
     public List<T> GetApiResponse(string uri)
     {
         using var client = new HttpClient();
-        var response1 = client.GetAsync(uri).Result;
-        if (response1.StatusCode != HttpStatusCode.OK)
-            throw new APiErrorResponseException(response1.StatusCode.ToString());
-
-        var response = response1;
+        var response = client.GetAsync(uri).Result;
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            throw new APiErrorResponseException(response.StatusCode.ToString());
+        }
         var responseStream = response.Content.ReadAsStreamAsync().Result;
-        return JsonSerializer.DeserializeAsync<List<T>>(responseStream).Result;
+        return DeserializeAsync<List<T>>(responseStream).Result;
     }
 }

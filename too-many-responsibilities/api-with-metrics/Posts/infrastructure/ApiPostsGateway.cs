@@ -53,19 +53,27 @@ public class ApiPostsGateway : PostsGateway
 
     private Post CreatePostFrom(PostData response)
     {
-        return new Post(new Id(response.postId), response.title, response.text, new Id(response.userId));
+        return new Post(new Id(response.PostId), response.Title, response.Text, new Id(response.UserId));
     }
 
     private string CreateUriFor(User user)
     {
-        return _apiBaseUrl + "/posts?version=" + ApiVersion + "&" + user.Id().AsText();
+        return $"{_apiBaseUrl}/posts/?version={ApiVersion}&userId={user.Id().AsText()}";
     }
 }
 
 public class PostData
 {
-    public string userId { get; }
-    public string postId { get; }
-    public string title { get; }
-    public string text { get; }
+    public string UserId { get; }
+    public string PostId { get; }
+    public string Title { get; }
+    public string Text { get; }
+
+    public PostData(string userId, string postId, string title, string text)
+    {
+        UserId = userId;
+        PostId = postId;
+        Title = title;
+        Text = text;
+    }
 }
