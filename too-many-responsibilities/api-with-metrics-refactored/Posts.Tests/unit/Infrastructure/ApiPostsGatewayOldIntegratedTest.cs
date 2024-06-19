@@ -7,8 +7,8 @@ using UserAccount;
 namespace Posts.Tests.unit.Infrastructure;
 
 
-// only for comparison purposes
-// we would't do this test
+// kept only for comparison purposes
+// we would't write this test
 // an acceptance test would cover this integration
 public class ApiPostsGatewayOldIntegratedTest
 {
@@ -41,7 +41,7 @@ public class ApiPostsGatewayOldIntegratedTest
 
         var posts = _postsGateway.RetrievePostsFor(new User(new Id(UserId)));
 
-        SuccessMetricWereSent();
+        SuccessMetricsWereSent();
         Assert.That(posts, Is.EquivalentTo(
             new List<Post>
         {
@@ -60,7 +60,7 @@ public class ApiPostsGatewayOldIntegratedTest
         FailureMetricsWereSent();
     }
 
-    private void SuccessMetricWereSent()
+    private void SuccessMetricsWereSent()
     {
         PerformanceMetricsWereSent();
         _metricsSender.Received(1).IncrementCount("posts_api.success.get");

@@ -35,7 +35,7 @@ public class PostGateWayWithMetricsTest
 
         var posts = _postsGateway.RetrievePostsFor(_user);
 
-        SuccessMetricWereSent();
+        SuccessMetricsWereSent();
         Assert.That(posts, Is.EquivalentTo(retrievedPosts));
     }
 
@@ -49,7 +49,7 @@ public class PostGateWayWithMetricsTest
         FailureMetricsWereSent();
     }
 
-    private void SuccessMetricWereSent()
+    private void SuccessMetricsWereSent()
     {
         PerformanceMetricsWereSent();
         _metricsSender.Received(1).IncrementCount("posts_api.success.get");
