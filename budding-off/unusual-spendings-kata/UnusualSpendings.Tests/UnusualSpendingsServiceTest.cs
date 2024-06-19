@@ -27,9 +27,7 @@ namespace UnusualSpendings.Tests
         {
             var spendingCategory = new SpendingCategory("travel", new Money(928.00m, "$"));
             var alertText =
-                Introduction() +
-                CategoryLine(spendingCategory) +
-                Footter();
+                ComposeAlertText(spendingCategory);
             var user = new User(new UserId("userId"));
             var userContactData = new UserContactData("user@user.com");
             _unusualSpendingsDetector.Detect(user).Returns(new List<UnsusualSpending>
@@ -43,11 +41,6 @@ namespace UnusualSpendings.Tests
             _alertsSender.Received(1).Send(new Alert(alertText, userContactData));
         }
 
-        private static string Footter()
-        {
-            return "\nLove,\n\nThe Credit Card Company\n";
-        }
-
         [Test]
         public void no_alert_message_is_sent_when_no_unusual_spendings_are_detected()
         {
@@ -57,6 +50,23 @@ namespace UnusualSpendings.Tests
             _unusualSpendingsService.Alert(user);
 
             _alertsSender.Received(0).Send(Arg.Any<Alert>());
+        }
+
+        private string ComposeAlertText(params SpendingCategory[] spendingCategories)
+        {
+            var alertText = Introduction();
+            
+            foreach (var category in spendingCategories)
+            {
+                alertText += CategoryLine(category);    
+            }
+            alertText += Footter();
+            return alertText;
+        }
+
+        private static string Footter()
+        {
+            return "\nLove,\n\nThe Credit Card Company\n";
         }
 
         private static string Introduction()
