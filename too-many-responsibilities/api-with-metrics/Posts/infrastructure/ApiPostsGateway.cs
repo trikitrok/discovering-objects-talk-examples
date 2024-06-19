@@ -11,10 +11,10 @@ public class ApiPostsGateway : PostsGateway
     private const string PostsApiSuccessGetMetricsKey = "posts_api.success.get";
     private const string PostsApiErrorsGetMetricsKey = "posts_api.errors.get";
     private readonly string _apiBaseUrl;
-    private readonly ApiClient<PostData> _apiClient;
+    private readonly ApiClient<PostResponseData> _apiClient;
     private readonly MetricsSender _metricsSender;
 
-    public ApiPostsGateway(string apiBaseUrl, ApiClient<PostData> apiClient, MetricsSender metricsSender)
+    public ApiPostsGateway(string apiBaseUrl, ApiClient<PostResponseData> apiClient, MetricsSender metricsSender)
     {
         _apiBaseUrl = apiBaseUrl;
         _apiClient = apiClient;
@@ -51,7 +51,7 @@ public class ApiPostsGateway : PostsGateway
         }
     }
 
-    private Post CreatePostFrom(PostData response)
+    private Post CreatePostFrom(PostResponseData response)
     {
         return new Post(new Id(response.PostId), response.Title, response.Text, new Id(response.UserId));
     }
@@ -62,14 +62,14 @@ public class ApiPostsGateway : PostsGateway
     }
 }
 
-public class PostData
+public class PostResponseData
 {
     public string UserId { get; }
     public string PostId { get; }
     public string Title { get; }
     public string Text { get; }
 
-    public PostData(string userId, string postId, string title, string text)
+    public PostResponseData(string userId, string postId, string title, string text)
     {
         UserId = userId;
         PostId = postId;
