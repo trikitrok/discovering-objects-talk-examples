@@ -8,11 +8,13 @@ namespace Posts.Tests.unit.Infrastructure;
 
 public class ApiPostsGatewayTest
 {
-    private const string ApiBaseUrl = "blabla";
+    private const string ApiBaseUrl = "baseUri";
     private const int ApiVersion = 2;
+    private const string UserId = "userId";
     private ApiPostsGateway _apiPostsGateway;
     private ApiClient<PostResponseData>? _apiClient;
     private MetricsSender? _metricsSender;
+    private string _uri;
 
     [SetUp]
     public void SetUp()
@@ -20,25 +22,22 @@ public class ApiPostsGatewayTest
         _metricsSender = Substitute.For<MetricsSender>();
         _apiClient = Substitute.For<ApiClient<PostResponseData>>();
         _apiPostsGateway = new ApiPostsGateway(ApiBaseUrl, _apiClient, _metricsSender);
+        _uri = $"{ApiBaseUrl}/posts/?version={ApiVersion}&userId={UserId}";
     }
 
     [Test]
     public void retrieving_posts_for_a_user_successfully()
     {
-        var userId = "userId";
-        var uri = $"{ApiBaseUrl}/posts/?version={ApiVersion}&userId={userId}";
-        _apiClient.GetApiResponse(uri).Returns(
+        _apiClient.GetApiResponse(_uri).Returns(
             new List<PostResponseData>
             {
                 new PostResponseData("userId", "postId1", "title1", "text1"),
                 new PostResponseData("userId", "postId2", "title2", "text2")
             });
 
-        var posts = _apiPostsGateway.RetrievePostsFor(new User(new Id(userId)));
+        var posts = _apiPostsGateway.RetrievePostsFor(new User(new Id(UserId)));
 
-        _metricsSender.Received(1).StartResponseTime("posts_api.response_time");
-        _metricsSender.Received(1).EndResponseTime("posts_api.response_time");
-        _metricsSender.Received(1).IncrementCount("posts_api.success.get");
+        SuccessMetricWereSent();
         Assert.That(posts, Is.EquivalentTo(
             new List<Post>
         {
@@ -46,18 +45,32 @@ public class ApiPostsGatewayTest
             new Post(new Id("postId2"), "title2", "text2", new Id("userId"))
         }));
     }
-    
+
     [Test]
     public void retrieving_posts_for_a_user_fails()
     {
-        var userId = "userId";
-        var uri = $"{ApiBaseUrl}/posts/?version={ApiVersion}&userId={userId}";
-        _apiClient.GetApiResponse(uri).Throws(x => { throw new Exception(); });
+        _apiClient.GetApiResponse(_uri).Throws(x => { throw new Exception(); });
 
-        Assert.Throws<PostRetrievalException>(() => _apiPostsGateway.RetrievePostsFor(new User(new Id(userId))));
+        Assert.Throws<PostRetrievalException>(() => _apiPostsGateway.RetrievePostsFor(new User(new Id(UserId))));
         
+        FailureMetricsWereSent();
+    }
+
+    private void SuccessMetricWereSent()
+    {
+        PerformanceMetricsWereSent();
+        _metricsSender.Received(1).IncrementCount("posts_api.success.get");
+    }
+
+    private void FailureMetricsWereSent()
+    {
+        PerformanceMetricsWereSent();
+        _metricsSender.Received(1).IncrementCount("posts_api.errors.get");
+    }
+    
+    private void PerformanceMetricsWereSent()
+    {
         _metricsSender.Received(1).StartResponseTime("posts_api.response_time");
         _metricsSender.Received(1).EndResponseTime("posts_api.response_time");
-        _metricsSender.Received(1).IncrementCount("posts_api.errors.get");
     }
 }
