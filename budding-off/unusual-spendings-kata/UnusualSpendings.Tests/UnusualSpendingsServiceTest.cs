@@ -1,4 +1,5 @@
 using System.Globalization;
+using EmptyFiles;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -24,27 +25,27 @@ namespace UnusualSpendings.Tests
         [Test]
         public void an_alert_message_is_sent_when_unusual_spendings_are_detected()
         {
-            var categoryTotalAmountSpent = 928.00m;
-            var categoryName = "travel";
-            var currencySymbol = "$";
+            var spendingCategory = new SpendingCategory("travel", new Money(928.00m, "$"));
             var alertText =
-                $"Hello card user!\n\nWe have detected unusually high spending on your card in these categories:\n\n* You spent {currencySymbol}{categoryTotalAmountSpent.ToString("f2", new CultureInfo("en-US"))} on {categoryName}\n\nLove,\n\nThe Credit Card Company\n";
+                Introduction() +
+                CategoryLine(spendingCategory) +
+                Footter();
             var user = new User(new UserId("userId"));
             var userContactData = new UserContactData("user@user.com");
             _unusualSpendingsDetector.Detect(user).Returns(new List<UnsusualSpending>
             {
-                new UnsusualSpending(
-                    new List<SpendingCategory>
-                    {
-                        new SpendingCategory(categoryName, new Money(categoryTotalAmountSpent, currencySymbol))
-                    }
-                )
+                new UnsusualSpending(new List<SpendingCategory> { spendingCategory })
             });
             _userRepository.GetContactData(user).Returns(userContactData);
 
             _unusualSpendingsService.Alert(user);
 
             _alertsSender.Received(1).Send(new Alert(alertText, userContactData));
+        }
+
+        private static string Footter()
+        {
+            return "\nLove,\n\nThe Credit Card Company\n";
         }
 
         [Test]
@@ -56,6 +57,27 @@ namespace UnusualSpendings.Tests
             _unusualSpendingsService.Alert(user);
 
             _alertsSender.Received(0).Send(Arg.Any<Alert>());
+        }
+
+        private static string Introduction()
+        {
+            return "Hello card user!\n\n" +
+                   "We have detected unusually high spending on your card in these categories:\n\n";
+        }
+
+        private string CategoryLine(SpendingCategory category)
+        {
+            return FormatSpentMoney(category) + $"on {category.Name()}\n";
+        }
+
+        private static string FormatSpentMoney(SpendingCategory category)
+        {
+            return $"* You spent {category.CurrencySymbol()}{FormatAmount(category.TotalAmountspent())} ";
+        }
+
+        private static string FormatAmount(decimal amount)
+        {
+            return amount.ToString("f2", new CultureInfo("en-US"));
         }
     }
 }

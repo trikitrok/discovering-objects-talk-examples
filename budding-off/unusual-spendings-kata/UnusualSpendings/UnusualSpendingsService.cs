@@ -47,8 +47,11 @@ public class UnusualSpendingsService
 
     private class AlertTextComposer
     {
+        private CultureInfo _cultureInfo;
+
         public AlertTextComposer()
         {
+            _cultureInfo = new CultureInfo("en-US");
         }
 
         public string ComposeAlertText(List<UnsusualSpending> unsusualSpendings, UserContactData contactData,
@@ -61,7 +64,7 @@ public class UnusualSpendingsService
             var spendingCategory = spendingCategories.First();
             alertText += "We have detected unusually high spending on your card in these categories:\n\n" +
                          $"* You spent {spendingCategory.CurrencySymbol()}" +
-                         $"{spendingCategory.TotalAmountspent().ToString("f2", new CultureInfo("en-US"))} " +
+                         $"{spendingCategory.TotalAmountspent().ToString("f2", _cultureInfo)} " +
                          $"on {spendingCategory.Name()}\n";
             alertText += Footer();
             return alertText;
