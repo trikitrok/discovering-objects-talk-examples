@@ -7,17 +7,23 @@ namespace Posts.infrastructure;
 public class ApiPostsGateway : PostsGateway
 {
     private const int ApiVersion = 2;
+    private const string PostsApiResponseTimeMetricsKey = "posts_api.response_time";
+    private const string PostsApiSuccessGetMetricsKey = "posts_api.success.get";
+    private const string PostsApiErrorsGetMetricsKey = "posts_api.errors.get";
     private readonly string _apiBaseUrl;
     private readonly ApiClient<PostData> _apiClient;
+    private readonly MetricsSender _metricsSender;
 
-    public ApiPostsGateway(string apiBaseUrl, ApiClient<PostData> apiClient)
+    public ApiPostsGateway(string apiBaseUrl, ApiClient<PostData> apiClient, MetricsSender metricsSender)
     {
         _apiBaseUrl = apiBaseUrl;
         _apiClient = apiClient;
+        _metricsSender = metricsSender;
     }
 
     public List<Post> RetrievePostsFor(User user)
     {
+        _metricsSender.StartResponseTime(PostsApiResponseTimeMetricsKey);
         var posts = new List<Post>();
         try
         {
@@ -30,13 +36,19 @@ public class ApiPostsGateway : PostsGateway
                 var post = CreatePostFrom(postResponse);
                 posts.Add(post);
             }
+
+            _metricsSender.IncrementCount(PostsApiSuccessGetMetricsKey);
+            return posts;
         }
         catch (Exception e)
         {
+            _metricsSender.IncrementCount(PostsApiErrorsGetMetricsKey);
             throw new PostRetrievalException(e);
         }
-
-        return posts;
+        finally
+        {
+            _metricsSender.EndResponseTime(PostsApiResponseTimeMetricsKey);    
+        }
     }
 
     private Post CreatePostFrom(PostData response)

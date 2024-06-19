@@ -1,3 +1,4 @@
+using NSubstitute;
 using NUnit.Framework;
 using Posts.infrastructure;
 
@@ -11,9 +12,11 @@ public class ApiPostsGatewayTest
     [SetUp]
     public void SetUp()
     {
-        _apiPostsGateway = new ApiPostsGateway(ApiBaseUrl, new HttpApiClient<PostData>());
+        var metricsSender = Substitute.For<MetricsSender>();
+        var apiClient = Substitute.For<ApiClient<PostData>>();
+        _apiPostsGateway = new ApiPostsGateway(ApiBaseUrl, apiClient, metricsSender);
     }
 
-    // some integration tests
+    // some unit tests
     // 
 }
