@@ -1,0 +1,2 @@
+dotnet test /p:CollectCoverage=true /p:CoverletOutput=coverage/data/coverage /p:CoverletOutputFormat=cobertura
+dotnet reportgenerator -reports:coverage/data/coverage.cobertura.xml -targetdir:coverage/report
