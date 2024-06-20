@@ -11,6 +11,8 @@ namespace UnusualSpendings.Tests
         private UnusualSpendingsDetector _unusualSpendingsDetector;
         private UserRepository _userRepository;
         private AlertSender _alertsSender;
+        private User _user = new User(new UserId("userId"));
+        private UserContactData _userContactData = new UserContactData("user@user.com");
 
         [SetUp]
         public void Setup()
@@ -18,8 +20,7 @@ namespace UnusualSpendings.Tests
             _unusualSpendingsDetector = Substitute.For<UnusualSpendingsDetector>();
             _userRepository = Substitute.For<UserRepository>();
             _alertsSender = Substitute.For<AlertSender>();
-            _unusualSpendingsService =
-                new UnusualSpendingsService(_unusualSpendingsDetector, _userRepository, _alertsSender);
+            _unusualSpendingsService = new UnusualSpendingsService(_unusualSpendingsDetector, _userRepository, _alertsSender);
         }
 
         [Test]
@@ -27,25 +28,22 @@ namespace UnusualSpendings.Tests
         {
             var spendingCategory = new SpendingCategory("travel", new Money(928.00m, "$"));
             var alertText = ComposeAlertText(spendingCategory);
-            var user = new User(new UserId("userId"));
-            var userContactData = new UserContactData("user@user.com");
-            _unusualSpendingsDetector.Detect(user).Returns(
+            _unusualSpendingsDetector.Detect(_user).Returns(
                 new UnsusualSpendings(new List<SpendingCategory> { spendingCategory })
             );
-            _userRepository.GetContactData(user).Returns(userContactData);
+            _userRepository.GetContactData(_user).Returns(_userContactData);
 
-            _unusualSpendingsService.Alert(user);
+            _unusualSpendingsService.Alert(_user);
 
-            _alertsSender.Received(1).Send(new Alert(alertText, userContactData));
+            _alertsSender.Received(1).Send(new Alert(alertText, _userContactData));
         }
 
         [Test]
         public void no_alert_message_is_sent_when_no_unusual_spendings_are_detected()
         {
-            var user = new User(new UserId("userId"));
-            _unusualSpendingsDetector.Detect(user).Returns(new UnsusualSpendings(new List<SpendingCategory>()));
+            _unusualSpendingsDetector.Detect(_user).Returns(new UnsusualSpendings(new List<SpendingCategory>()));
 
-            _unusualSpendingsService.Alert(user);
+            _unusualSpendingsService.Alert(_user);
 
             _alertsSender.Received(0).Send(Arg.Any<Alert>());
         }
@@ -56,16 +54,14 @@ namespace UnusualSpendings.Tests
             var spendingCategory1 = new SpendingCategory("travel", new Money(928.00m, "$"));
             var spendingCategory2 = new SpendingCategory("groceries", new Money(800.33m, "$"));
             var alertText = ComposeAlertText(spendingCategory1, spendingCategory2);
-            var user = new User(new UserId("userId"));
-            var userContactData = new UserContactData("user@user.com");
-            _unusualSpendingsDetector.Detect(user).Returns(
+            _unusualSpendingsDetector.Detect(_user).Returns(
                 new UnsusualSpendings(new List<SpendingCategory> { spendingCategory1, spendingCategory2 })
             );
-            _userRepository.GetContactData(user).Returns(userContactData);
+            _userRepository.GetContactData(_user).Returns(_userContactData);
 
-            _unusualSpendingsService.Alert(user);
+            _unusualSpendingsService.Alert(_user);
 
-            _alertsSender.Received(1).Send(new Alert(alertText, userContactData));
+            _alertsSender.Received(1).Send(new Alert(alertText, _userContactData));
         }
 
         private string ComposeAlertText(params SpendingCategory[] spendingCategories)
