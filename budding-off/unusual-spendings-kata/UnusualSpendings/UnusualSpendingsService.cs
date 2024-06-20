@@ -49,11 +49,13 @@ public class UnusualSpendingsService
 
         public string Compose(UnsusualSpendings unusualSpendings)
         {
-            var alertText = Introduction();
-            alertText = unusualSpendings.SpendingCategories().Aggregate(alertText,
+            return Introduction() + CategoryLines(unusualSpendings) + Footer();
+        }
+
+        private string CategoryLines(UnsusualSpendings unusualSpendings)
+        {
+            return unusualSpendings.SpendingCategories().Aggregate("",
                 (current, spendingCategory) => current + CategoryLine(spendingCategory));
-            alertText += Footer();
-            return alertText;
         }
 
         private static string Introduction()
