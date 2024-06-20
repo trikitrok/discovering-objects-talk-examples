@@ -52,7 +52,11 @@ public class UnusualSpendingsService
         {
             var alertText = Introduction();
             var spendingCategories = unusualSpendings.SpendingCategories();
-            alertText += CategoryLine(spendingCategories.First());
+            foreach (var spendingCategory in spendingCategories)
+            {
+                alertText += CategoryLine(spendingCategory);    
+            }
+            
             alertText += Footer();
             return alertText;
         }

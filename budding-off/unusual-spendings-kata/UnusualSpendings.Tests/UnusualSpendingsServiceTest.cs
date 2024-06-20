@@ -49,6 +49,24 @@ namespace UnusualSpendings.Tests
 
             _alertsSender.Received(0).Send(Arg.Any<Alert>());
         }
+        
+        [Test]
+        public void an_alert_message_is_sent_when_several_unusual_spendings_are_detected()
+        {
+            var spendingCategory1 = new SpendingCategory("travel", new Money(928.00m, "$"));
+            var spendingCategory2 = new SpendingCategory("groceries", new Money(800.33m, "$"));
+            var alertText = ComposeAlertText(spendingCategory1, spendingCategory2);
+            var user = new User(new UserId("userId"));
+            var userContactData = new UserContactData("user@user.com");
+            _unusualSpendingsDetector.Detect(user).Returns(
+                new UnsusualSpendings(new List<SpendingCategory> { spendingCategory1, spendingCategory2 })
+            );
+            _userRepository.GetContactData(user).Returns(userContactData);
+
+            _unusualSpendingsService.Alert(user);
+
+            _alertsSender.Received(1).Send(new Alert(alertText, userContactData));
+        }
 
         private string ComposeAlertText(params SpendingCategory[] spendingCategories)
         {
