@@ -23,17 +23,15 @@ namespace UnusualSpendings.Tests
         }
 
         [Test]
-        public void an_alert_message_is_sent_when_unusual_spendings_are_detected()
+        public void an_alert_message_is_sent_when_one_unusual_spendings_is_detected()
         {
             var spendingCategory = new SpendingCategory("travel", new Money(928.00m, "$"));
-            var alertText =
-                ComposeAlertText(spendingCategory);
+            var alertText = ComposeAlertText(spendingCategory);
             var user = new User(new UserId("userId"));
             var userContactData = new UserContactData("user@user.com");
-            _unusualSpendingsDetector.Detect(user).Returns(new List<UnsusualSpending>
-            {
-                new UnsusualSpending(new List<SpendingCategory> { spendingCategory })
-            });
+            _unusualSpendingsDetector.Detect(user).Returns(
+                new UnsusualSpendings(new List<SpendingCategory> { spendingCategory })
+            );
             _userRepository.GetContactData(user).Returns(userContactData);
 
             _unusualSpendingsService.Alert(user);
@@ -45,7 +43,7 @@ namespace UnusualSpendings.Tests
         public void no_alert_message_is_sent_when_no_unusual_spendings_are_detected()
         {
             var user = new User(new UserId("userId"));
-            _unusualSpendingsDetector.Detect(user).Returns(new List<UnsusualSpending>());
+            _unusualSpendingsDetector.Detect(user).Returns(new UnsusualSpendings(new List<SpendingCategory>()));
 
             _unusualSpendingsService.Alert(user);
 
@@ -55,7 +53,8 @@ namespace UnusualSpendings.Tests
         private string ComposeAlertText(params SpendingCategory[] spendingCategories)
         {
             var alertText = Introduction();
-            alertText = spendingCategories.Aggregate(alertText, (current, category) => current + CategoryLine(category));
+            alertText = spendingCategories.Aggregate(alertText,
+                (current, category) => current + CategoryLine(category));
             alertText += Footter();
             return alertText;
         }

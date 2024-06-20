@@ -4,5 +4,5 @@ namespace UnusualSpendings;
 
 public interface UnusualSpendingsDetector
 {
-    List<UnsusualSpending> Detect(User user);
+    UnsusualSpendings Detect(User user);
 }

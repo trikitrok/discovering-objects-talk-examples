@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -24,7 +23,7 @@ public class UnusualSpendingsService
     public void Alert(User user)
     {
         var unsusualSpendings = _unusualSpendingsDetector.Detect(user);
-        if (IsEmpty(unsusualSpendings))
+        if (unsusualSpendings.IsEmpty())
         {
             return;
         }
@@ -33,16 +32,11 @@ public class UnusualSpendingsService
         _alertsSender.Send(alert);
     }
 
-    private Alert CreateAlert(List<UnsusualSpending> unsusualSpendings, UserContactData contactData)
+    private Alert CreateAlert(UnsusualSpendings unusualSpendings, UserContactData contactData)
     {
-        var alertText = _alertTextComposer.ComposeAlertText(unsusualSpendings, contactData, out var userContactData);
-        var alert = new Alert(alertText, userContactData);
+        var alertText = _alertTextComposer.ComposeAlertText(unusualSpendings);
+        var alert = new Alert(alertText, contactData);
         return alert;
-    }
-
-    private bool IsEmpty(List<UnsusualSpending> unsusualSpendings)
-    {
-        return unsusualSpendings.Count == 0;
     }
 
     private class AlertTextComposer
@@ -54,15 +48,11 @@ public class UnusualSpendingsService
             _cultureInfo = new CultureInfo("en-US");
         }
 
-        public string ComposeAlertText(List<UnsusualSpending> unsusualSpendings, UserContactData contactData,
-            out UserContactData userContactData)
+        public string ComposeAlertText(UnsusualSpendings unusualSpendings)
         {
             var alertText = Introduction();
-            var unsusualSpending = unsusualSpendings.First();
-            userContactData = contactData;
-            var spendingCategories = unsusualSpending.SpendingCategories();
-            var spendingCategory = spendingCategories.First();
-            alertText += CategoryLine(spendingCategory);
+            var spendingCategories = unusualSpendings.SpendingCategories();
+            alertText += CategoryLine(spendingCategories.First());
             alertText += Footer();
             return alertText;
         }
@@ -81,11 +71,6 @@ public class UnusualSpendingsService
         private string CategoryLine(SpendingCategory category)
         {
             return FormatSpentMoney(category) + $"on {category.Name()}\n";
-        }
-
-        private string Greeting()
-        {
-            return $"Hello card user!\n\n";
         }
 
         private string FormatSpentMoney(SpendingCategory category)

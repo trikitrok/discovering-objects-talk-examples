@@ -3,15 +3,20 @@ using System.Linq;
 
 namespace UnusualSpendings;
 
-public class UnsusualSpending
+public class UnsusualSpendings
 {
     private readonly List<SpendingCategory> _spendingCategories;
 
-    public UnsusualSpending(List<SpendingCategory> spendingCategories)
+    public UnsusualSpendings(List<SpendingCategory> spendingCategories)
     {
         _spendingCategories = spendingCategories;
     }
-    
+
+    public bool IsEmpty()
+    {
+        return _spendingCategories.Count == 0;
+    }
+
     public List<SpendingCategory> SpendingCategories()
     {
         return _spendingCategories;
@@ -22,7 +27,7 @@ public class UnsusualSpending
         return $"{nameof(_spendingCategories)}: {_spendingCategories}";
     }
 
-    protected bool Equals(UnsusualSpending other)
+    protected bool Equals(UnsusualSpendings other)
     {
         return _spendingCategories.SequenceEqual(other._spendingCategories);
     }
@@ -32,7 +37,7 @@ public class UnsusualSpending
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != this.GetType()) return false;
-        return Equals((UnsusualSpending)obj);
+        return Equals((UnsusualSpendings)obj);
     }
 
     public override int GetHashCode()
