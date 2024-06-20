@@ -55,11 +55,7 @@ namespace UnusualSpendings.Tests
         private string ComposeAlertText(params SpendingCategory[] spendingCategories)
         {
             var alertText = Introduction();
-            
-            foreach (var category in spendingCategories)
-            {
-                alertText += CategoryLine(category);    
-            }
+            alertText = spendingCategories.Aggregate(alertText, (current, category) => current + CategoryLine(category));
             alertText += Footter();
             return alertText;
         }
