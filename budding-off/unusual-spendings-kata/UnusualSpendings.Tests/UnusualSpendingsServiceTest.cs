@@ -6,18 +6,18 @@ namespace UnusualSpendings.Tests;
 
 public class UnusualSpendingsServiceTest
 {
-    private User _user;
-    private UserContactData _userContactData;
     private AlertSender _alertsSender;
     private UnusualSpendingsDetector _unusualSpendingsDetector;
     private UnusualSpendingsService _unusualSpendingsService;
+    private User _user;
+    private UserContactData _userContactData;
     private UserRepository _userRepository;
 
     [SetUp]
     public void Setup()
     {
-        _user = new(new UserId("userId"));
-        _userContactData = new("user@user.com");
+        _user = new User(new UserId("userId"));
+        _userContactData = new UserContactData("user@user.com");
         _unusualSpendingsDetector = Substitute.For<UnusualSpendingsDetector>();
         _userRepository = Substitute.For<UserRepository>();
         _alertsSender = Substitute.For<AlertSender>();
