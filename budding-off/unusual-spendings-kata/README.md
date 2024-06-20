@@ -1,4 +1,16 @@
-# Unusual Spending Kata
+# An example of budding-off
+
+We applied budding-off in order to avoid dealing with the complexity of detecting unusual spendings in the `UnusualSpendingsService`.
+
+This allowed us to focus only on the behavior of composing the alert text given some unusual spendings in some spending categories.
+
+We also defined the contract of the role that detects unusual spendings: `UnusualSpendingsDetector`.
+
+The current code composes the alert text and is ready to start developing a `PercentageThresholdBasedUnusualSpendingsDetector` implementation of `UnusualSpendingsDetector`.
+
+
+
+## Unusual Spending Kata
 
 You work at a credit card company and as a value-add they want to start providing alerts to users when their spending in any particular category is higher than usual.
 
