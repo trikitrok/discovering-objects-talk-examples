@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Linq;
 
 namespace UnusualSpendings;
 
@@ -9,8 +8,7 @@ public class UnusualSpendingsService
     private readonly AlertSender _alertsSender;
     private readonly UnusualSpendingsDetector _unusualSpendingsDetector;
     private readonly AlertTextComposer _alertTextComposer;
-
-
+    
     public UnusualSpendingsService(UnusualSpendingsDetector unusualSpendingsDetector, UserRepository userRepository,
         AlertSender alertsSender)
     {
@@ -22,41 +20,42 @@ public class UnusualSpendingsService
 
     public void Alert(User user)
     {
-        var unsusualSpendings = _unusualSpendingsDetector.Detect(user);
-        if (unsusualSpendings.IsEmpty())
+        var unusualSpendings = _unusualSpendingsDetector.Detect(user);
+        if (unusualSpendings.IsEmpty())
         {
             return;
         }
 
-        var alert = CreateAlert(unsusualSpendings, _userRepository.GetContactData(user));
+        var alert = CreateAlert(unusualSpendings, _userRepository.GetContactData(user));
         _alertsSender.Send(alert);
     }
 
     private Alert CreateAlert(UnsusualSpendings unusualSpendings, UserContactData contactData)
     {
-        var alertText = _alertTextComposer.ComposeAlertText(unusualSpendings);
-        var alert = new Alert(alertText, contactData);
-        return alert;
+        return new Alert(ComposeText(unusualSpendings), contactData);
+    }
+
+    private string ComposeText(UnsusualSpendings unusualSpendings)
+    {
+        return _alertTextComposer.Compose(unusualSpendings);
     }
 
     private class AlertTextComposer
     {
-        private CultureInfo _cultureInfo;
+        private readonly CultureInfo _cultureInfo;
 
         public AlertTextComposer()
         {
             _cultureInfo = new CultureInfo("en-US");
         }
 
-        public string ComposeAlertText(UnsusualSpendings unusualSpendings)
+        public string Compose(UnsusualSpendings unusualSpendings)
         {
             var alertText = Introduction();
-            var spendingCategories = unusualSpendings.SpendingCategories();
-            foreach (var spendingCategory in spendingCategories)
+            foreach (var spendingCategory in unusualSpendings.SpendingCategories())
             {
                 alertText += CategoryLine(spendingCategory);    
             }
-            
             alertText += Footer();
             return alertText;
         }
