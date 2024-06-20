@@ -8,6 +8,4 @@ public class User
     {
         _userId = userId;
     }
-
-
 }

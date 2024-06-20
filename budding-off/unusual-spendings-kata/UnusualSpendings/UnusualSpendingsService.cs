@@ -1,14 +1,15 @@
 using System.Globalization;
+using System.Linq;
 
 namespace UnusualSpendings;
 
 public class UnusualSpendingsService
 {
-    private readonly UserRepository _userRepository;
     private readonly AlertSender _alertsSender;
-    private readonly UnusualSpendingsDetector _unusualSpendingsDetector;
     private readonly AlertTextComposer _alertTextComposer;
-    
+    private readonly UnusualSpendingsDetector _unusualSpendingsDetector;
+    private readonly UserRepository _userRepository;
+
     public UnusualSpendingsService(UnusualSpendingsDetector unusualSpendingsDetector, UserRepository userRepository,
         AlertSender alertsSender)
     {
@@ -21,10 +22,7 @@ public class UnusualSpendingsService
     public void Alert(User user)
     {
         var unusualSpendings = _unusualSpendingsDetector.Detect(user);
-        if (unusualSpendings.IsEmpty())
-        {
-            return;
-        }
+        if (unusualSpendings.IsEmpty()) return;
 
         var alert = CreateAlert(unusualSpendings, _userRepository.GetContactData(user));
         _alertsSender.Send(alert);
@@ -52,10 +50,8 @@ public class UnusualSpendingsService
         public string Compose(UnsusualSpendings unusualSpendings)
         {
             var alertText = Introduction();
-            foreach (var spendingCategory in unusualSpendings.SpendingCategories())
-            {
-                alertText += CategoryLine(spendingCategory);    
-            }
+            alertText = unusualSpendings.SpendingCategories().Aggregate(alertText,
+                (current, spendingCategory) => current + CategoryLine(spendingCategory));
             alertText += Footer();
             return alertText;
         }

@@ -33,6 +33,6 @@
     </Target>
 
     <ItemGroup>
-        <ProjectReference Include="..\UnusualSpendings\UnusualSpendings.csproj" />
+        <ProjectReference Include="..\UnusualSpendings\UnusualSpendings.csproj"/>
     </ItemGroup>
 </Project>

@@ -17,7 +17,7 @@ public class Money
     {
         return _currencySymbol;
     }
-    
+
     public decimal Amount()
     {
         return _amount;
@@ -37,7 +37,7 @@ public class Money
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((Money)obj);
     }
 

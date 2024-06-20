@@ -10,16 +10,17 @@ public class SpendingCategory
         _name = name;
         _totalAmountspent = totalAmountspent;
     }
-    
+
     public string Name()
     {
         return _name;
     }
+
     public string CurrencySymbol()
     {
         return _totalAmountspent.CurrencySymbol();
     }
-    
+
     public decimal TotalAmountspent()
     {
         return _totalAmountspent.Amount();
@@ -34,7 +35,7 @@ public class SpendingCategory
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((SpendingCategory)obj);
     }
 
@@ -47,6 +48,4 @@ public class SpendingCategory
     {
         return $"{nameof(_name)}: {_name}";
     }
-
-    
 }
