@@ -9,7 +9,6 @@ We also defined the contract of the role that detects unusual spendings: `Unusua
 The current code composes the alert text and is ready to start developing a `PercentageThresholdBasedUnusualSpendingsDetector` implementation of `UnusualSpendingsDetector`.
 
 
-
 ## Unusual Spending Kata
 
 You work at a credit card company and as a value-add they want to start providing alerts to users when their spending in any particular category is higher than usual.
