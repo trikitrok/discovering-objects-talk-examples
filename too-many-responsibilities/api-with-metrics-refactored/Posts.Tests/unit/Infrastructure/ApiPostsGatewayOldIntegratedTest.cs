@@ -8,7 +8,7 @@ namespace Posts.Tests.unit.Infrastructure;
 
 
 // kept only for comparison purposes
-// we would't write this test
+// we wouldn't write this test
 // an acceptance test would cover this integration
 public class ApiPostsGatewayOldIntegratedTest
 {
