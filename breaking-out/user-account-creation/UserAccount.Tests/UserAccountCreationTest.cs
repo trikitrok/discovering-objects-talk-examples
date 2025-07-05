@@ -57,7 +57,9 @@ public class UserAccountCreationTest
             Name,
             ValidCreditCardNumber
         );
+        
         _userAccountCreation.CreateUserAccount(userWithValidNie);
+        
         _notifier.Received(1).Notify($"Saving Account for User ({userWithValidNie.FullName()})\n");
         _accountsRepository.Received(1).Save(
             new Account(
@@ -131,7 +133,9 @@ public class UserAccountCreationTest
             Name,
             ValidCreditCardNumber
         );
+        
         _userAccountCreation.CreateUserAccount(invalidDniUser);
+        
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
         _accountsRepository.DidNotReceive().Save(Arg.Any<Account>());
     }
@@ -168,6 +172,7 @@ public class UserAccountCreationTest
             Name,
             ValidCreditCardNumber
         );
+        
         _userAccountCreation.CreateUserAccount(invalidNieUser);
 
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
@@ -187,13 +192,6 @@ public class UserAccountCreationTest
 
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
         _accountsRepository.DidNotReceive().Save(Arg.Any<Account>());
-    }
-
-    private static IEnumerable<string> InvalidNieOrDniPrefixes()
-    {
-        return Enumerable.Range('A', 26)
-            .Select(i => ((char)i).ToString())
-            .Where(c => !InvalidPrefixes.Contains(c));
     }
     
     [TestCase("4539578763621486")]
@@ -240,5 +238,12 @@ public class UserAccountCreationTest
 
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
         _accountsRepository.DidNotReceive().Save(Arg.Any<Account>());
+    }
+    
+    private static IEnumerable<string> InvalidNieOrDniPrefixes()
+    {
+        return Enumerable.Range('A', 26)
+            .Select(i => ((char)i).ToString())
+            .Where(c => !InvalidPrefixes.Contains(c));
     }
 }
