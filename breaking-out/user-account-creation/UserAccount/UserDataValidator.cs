@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -18,7 +17,7 @@ public class UserDataValidator
     {
         return !(LuhnTestValidator.Passes(userData.CreditCardNumber()) && _idValidator.IsValid(userData.SpanishId()));
     }
-    
+
     private class IdValidator
     {
         private readonly Regex _dniRegex;
@@ -27,7 +26,7 @@ public class UserDataValidator
 
         public IdValidator()
         {
-            _dniRegex = new Regex(@"^(([KLM]\\d{7})|(\\d{8}))([A-Z])$");
+            _dniRegex = new Regex(@"^(([KLM]\d{7})|(\d{8}))([A-Z])$");
             _cifRegex = new Regex(@"^([ABCDEFGHJNPQRSUVW])(\d{7})([0-9A-J])$");
             _nieRegex = new Regex(@"^[XYZ]\d{7,8}[A-Z]$");
         }
@@ -48,7 +47,7 @@ public class UserDataValidator
 
             if (_cifRegex.IsMatch(digits))
             {
-                return new CifValidator(digits, _cifRegex);
+                return new CifValidator(digits);
             }
 
             if (_nieRegex.IsMatch(digits))
@@ -75,62 +74,72 @@ public class UserDataValidator
         private class CifValidator : DocumentValidator
         {
             private readonly string _digits;
-            private readonly Regex _cifRegex;
-            private readonly Regex _controlAsDigitRegex;
-            private readonly Regex _controlAsLetterRegex;
+            private const string ControlLettersCif = "JABCDEFGHI";
 
-            public CifValidator(string digits, Regex cifRegex)
+            private static readonly Regex CifRegex =
+                new Regex(@"^[ABCDEFGHJNPQRSUVW]\d{7}[A-J0-9]$", RegexOptions.IgnoreCase);
+
+
+            public CifValidator(string digits)
             {
                 _digits = digits;
-                _cifRegex = cifRegex;
-                _controlAsDigitRegex = new Regex(@"[ABEH]");
-                _controlAsLetterRegex = new Regex(@"[PQSW]");
             }
-
+            
             public bool IsValid()
             {
-                var matches = _cifRegex.Matches(_digits);
-                var letter = matches[1].Value;
-                var number = matches[2].Value;
-                var control = matches[3].Value;
-                var lastDigit = ComputeLastDigit(number);
-                var controlDigit = lastDigit != 0 ? (10 - lastDigit) : lastDigit;
-                var controlLetter = "JABCDEFGHI".Substring(controlDigit, 1);
+                return IsValidCif(_digits);
+            }
+            
+            private bool IsValidCif(string cif)
+            {
+                if (!CifRegex.IsMatch(cif))
+                    return false;
 
-                if (_controlAsDigitRegex.IsMatch(letter))
-                {
-                    return controlDigit.ToString().Equals(control);
-                }
+                var numbers = cif.Substring(1, 7); // Extraer los 7 números
+                var controlCharacter = cif[^1]; // Último carácter
 
-                if (_controlAsLetterRegex.IsMatch(letter))
-                {
-                    return controlLetter.Equals(control);
-                }
+                var sumPairs = SumEvenPositions(numbers);
+                var sumOdds = SumOddPositions(numbers);
 
-                return controlDigit.ToString().Equals(control) || controlLetter.Equals(control);
+                var totalSum = sumPairs + sumOdds;
+                var controlNumber = CalculateControlNumber(totalSum);
+
+                if (char.IsDigit(controlCharacter))
+                    return controlNumber.ToString() == controlCharacter.ToString();
+
+                if (char.IsLetter(controlCharacter))
+                    return ControlLettersCif[controlNumber].ToString() == controlCharacter.ToString();
+
+                return false;
             }
 
-            private static int ComputeLastDigit(string number)
+            private int SumEvenPositions(string numbers)
             {
-                var evenSum = 0;
-                var oddSum = 0;
+                return int.Parse(numbers[1].ToString()) +
+                       int.Parse(numbers[3].ToString()) +
+                       int.Parse(numbers[5].ToString());
+            }
 
-                for (var i = 0; i < number.Length; i++)
-                {
-                    var n = int.Parse(number.Substring(i, 1));
+            private int SumOddPositions(string numbers)
+            {
+                return SumDigits(int.Parse(numbers[0].ToString()) * 2) +
+                       SumDigits(int.Parse(numbers[2].ToString()) * 2) +
+                       SumDigits(int.Parse(numbers[4].ToString()) * 2) +
+                       SumDigits(int.Parse(numbers[6].ToString()) * 2);
+            }
 
-                    if (i % 2 == 0)
-                    {
-                        n *= 2;
-                        oddSum += n < 10 ? n : n - 9;
-                    }
-                    else
-                    {
-                        evenSum += n;
-                    }
-                }
+            private int SumDigits(int number)
+            {
+                if (number < 10) return number;
 
-                return int.Parse((evenSum + oddSum).ToString()[^1..]);
+                var numStr = number.ToString();
+                return int.Parse(numStr[0].ToString()) + int.Parse(numStr[1].ToString());
+            }
+
+            private int CalculateControlNumber(int totalSum)
+            {
+                var remainder = totalSum % 10;
+                return remainder == 0 ? 0 : 10 - remainder;
             }
         }
 
@@ -174,25 +183,34 @@ public class UserDataValidator
         private class DniValidator : DocumentValidator
         {
             private readonly string _digits;
-            private readonly Regex _dniFirstDigitRegex;
+
+            private const string DniControlLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
+
+            private static readonly Regex DniRegex =
+                new Regex(@"^([KLM]\d{7}|\d{8})[TRWAGMYFPDXBNJZSQVHLCKE]$", RegexOptions.IgnoreCase);
 
             public DniValidator(string digits)
             {
                 _digits = digits;
-                _dniFirstDigitRegex = new Regex(@"^(([KLM]\\d{7})|(\\d{8}))([A-Z])$");
             }
 
             public bool IsValid()
             {
-                var dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
-                var dniDigits = _digits;
-                if (_dniFirstDigitRegex.IsMatch(dniDigits[..1]))
-                {
-                    dniDigits = dniDigits[1..];
-                }
-                var number = int.Parse(dniDigits);
-                var letter = dniLetters.Substring(number % 23, 1);
-                return letter == dniDigits[^1..];
+                return DniRegex.IsMatch(_digits) && IsValidDniLetter();
+            }
+
+            private bool IsValidDniLetter()
+            {
+                var numberPart = Regex.Replace(_digits, "[^\\d]", "");
+                var number = _digits.StartsWith("K", StringComparison.OrdinalIgnoreCase) ||
+                             _digits.StartsWith("L", StringComparison.OrdinalIgnoreCase) ||
+                             _digits.StartsWith("M", StringComparison.OrdinalIgnoreCase)
+                    ? int.Parse("0" + numberPart)
+                    : int.Parse(numberPart);
+
+                var letterIndex = number % 23;
+                var letter = _digits[^1];
+                return DniControlLetters[letterIndex] == letter;
             }
         }
 
@@ -206,29 +224,18 @@ public class UserDataValidator
     {
         public static bool Passes(string creditCardNumber)
         {
-            var reversedNumbers = Reverse(creditCardNumber).Select(number => int.Parse(number.ToString()));
-            return (LunhSumOddPositions(reversedNumbers) + LunhSumEvenPositions(reversedNumbers)) % 10 == 0;
-        }
+            if (string.IsNullOrWhiteSpace(creditCardNumber) || creditCardNumber.Any(c => !char.IsDigit(c)))
+            {
+                return false;
+            }
 
-        private static int LunhSumOddPositions(IEnumerable<int> numbers)
-        {
-            return numbers.ToList().Where((c, i) => i % 2 != 0).Sum();
-        }
-
-        private static int LunhSumEvenPositions(IEnumerable<int> numbers)
-        {
-            return numbers.ToList().Where((c, i) => i % 2 == 0)
-                .Select((number) => number * 2)
-                .Select((number) => number.ToString().Split("").Select(int.Parse).Sum())
-                .Sum();
-        }
-
-        private static string Reverse(string s)
-        {
-            char[] charArray = s.ToCharArray();
-            Array.Reverse(charArray);
-            return new string(charArray);
+            return creditCardNumber
+                .Reverse()
+                .Select(c => c - '0')
+                .Select((digit, index) => index % 2 == 0 
+                    ? digit 
+                    : (digit * 2 > 9 ? digit * 2 - 9 : digit * 2))
+                .Sum() % 10 == 0;
         }
     }
 }
-
