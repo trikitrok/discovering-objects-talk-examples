@@ -19,7 +19,10 @@ public class UserAccountCreationTest
         _accountsRepository = Substitute.For<AccountsRepository>();
         _userAccountCreation = new UserAccountCreation(_notifier, _accountsRepository, new Encrypter());
     }
-
+    
+    // There are only a couple of test that serve to test UserAccountCreation logic,    
+    // and gazillions of tests that are actually testing the user data validation
+    
     [TestCase("12345678Z")]
     [TestCase("87654321X")]
     [TestCase("11223344B")]
@@ -86,7 +89,7 @@ public class UserAccountCreationTest
                 ValidCreditCardNumber.Reverse().ToString())
         );
     }
-
+    
     [Test]
     public void Can_Not_Create_Account_When_Id_Contains_Whitespace()
     {
