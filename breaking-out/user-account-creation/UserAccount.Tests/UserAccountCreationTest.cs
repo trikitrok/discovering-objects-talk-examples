@@ -20,7 +20,7 @@ public class UserAccountCreationTest
         _userAccountCreation = new UserAccountCreation(_notifier, _accountsRepository, new Encrypter());
     }
     
-    // There are only a couple of test that serve to test UserAccountCreation logic,    
+    // There are only a couple of tests that serve to test UserAccountCreation logic,    
     // and gazillions of tests that are actually testing the user data validation
     
     [TestCase("12345678Z")]
