@@ -3,8 +3,8 @@ namespace UserAccount;
 public class UserData
 {
     private readonly string _creditCardNumber;
-    private readonly Id _id;
     private readonly string _fullName;
+    private readonly Id _id;
 
     public UserData(Id id, string fullName, string creditCardNumber)
     {

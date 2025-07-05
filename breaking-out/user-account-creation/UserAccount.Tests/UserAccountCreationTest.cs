@@ -5,9 +5,9 @@ namespace UserAccount.Tests;
 
 public class UserAccountCreationTest
 {
-    private static readonly HashSet<string> InvalidPrefixes = new() { "X", "Y", "Z", "K", "L", "M" };
     private const string Name = "some name";
     private const string ValidCreditCardNumber = "0000000000000000";
+    private static readonly HashSet<string> InvalidPrefixes = new() { "X", "Y", "Z", "K", "L", "M" };
     private AccountsRepository _accountsRepository;
     private Notifier _notifier;
     private UserAccountCreation _userAccountCreation;
@@ -19,10 +19,10 @@ public class UserAccountCreationTest
         _accountsRepository = Substitute.For<AccountsRepository>();
         _userAccountCreation = new UserAccountCreation(_notifier, _accountsRepository, new Encrypter());
     }
-    
+
     // There are only a couple of tests that serve to test UserAccountCreation logic,    
     // and gazillions of tests that are actually testing the user data validation
-    
+
     [TestCase("12345678Z")]
     [TestCase("87654321X")]
     [TestCase("11223344B")]
@@ -57,9 +57,9 @@ public class UserAccountCreationTest
             Name,
             ValidCreditCardNumber
         );
-        
+
         _userAccountCreation.CreateUserAccount(userWithValidNie);
-        
+
         _notifier.Received(1).Notify($"Saving Account for User ({userWithValidNie.FullName()})\n");
         _accountsRepository.Received(1).Save(
             new Account(
@@ -91,7 +91,7 @@ public class UserAccountCreationTest
                 ValidCreditCardNumber.Reverse().ToString())
         );
     }
-    
+
     [Test]
     public void Can_Not_Create_Account_When_Id_Contains_Whitespace()
     {
@@ -133,9 +133,9 @@ public class UserAccountCreationTest
             Name,
             ValidCreditCardNumber
         );
-        
+
         _userAccountCreation.CreateUserAccount(invalidDniUser);
-        
+
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
         _accountsRepository.DidNotReceive().Save(Arg.Any<Account>());
     }
@@ -172,7 +172,7 @@ public class UserAccountCreationTest
             Name,
             ValidCreditCardNumber
         );
-        
+
         _userAccountCreation.CreateUserAccount(invalidNieUser);
 
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
@@ -193,15 +193,15 @@ public class UserAccountCreationTest
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
         _accountsRepository.DidNotReceive().Save(Arg.Any<Account>());
     }
-    
+
     [TestCase("4539578763621486")]
     [TestCase("4716871917909534")]
-    [TestCase("4539682995824395")] 
-    [TestCase("6011111111111117")] 
-    [TestCase("378282246310005")]  
-    [TestCase("5105105105105100")] 
-    [TestCase("371449635398431")]  
-    [TestCase("5555555555554444")] 
+    [TestCase("4539682995824395")]
+    [TestCase("6011111111111117")]
+    [TestCase("378282246310005")]
+    [TestCase("5105105105105100")]
+    [TestCase("371449635398431")]
+    [TestCase("5555555555554444")]
     [TestCase("49927398716")]
     public void Can_Create_Account_When_Credit_Card_Is_Valid(string validCreditCard)
     {
@@ -239,7 +239,7 @@ public class UserAccountCreationTest
         _notifier.Received(1).Notify("Could not create account due to invalid user data.\n");
         _accountsRepository.DidNotReceive().Save(Arg.Any<Account>());
     }
-    
+
     private static IEnumerable<string> InvalidNieOrDniPrefixes()
     {
         return Enumerable.Range('A', 26)

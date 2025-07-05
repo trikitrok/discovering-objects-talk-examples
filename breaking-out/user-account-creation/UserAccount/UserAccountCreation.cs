@@ -22,6 +22,7 @@ public class UserAccountCreation
             NotifyWrongUserData();
             return;
         }
+
         CreateAccountFrom(userData);
         NotifyUserAccountCreation(userData.FullName());
     }
@@ -39,7 +40,7 @@ public class UserAccountCreation
 
     private void NotifyWrongUserData()
     {
-        _notifier.Notify($"Could not create account due to invalid user data.\n");
+        _notifier.Notify("Could not create account due to invalid user data.\n");
     }
 
     private void NotifyUserAccountCreation(string fullName)

@@ -4,9 +4,9 @@ namespace UserAccount;
 
 public class Account
 {
-    private readonly Id _id;
     private readonly string _encryptedCreditCardNumber;
     private readonly string _fullName;
+    private readonly Id _id;
 
     public Account(string fullName, Id id, string encryptedCreditCardNumber)
     {
@@ -17,7 +17,8 @@ public class Account
 
     protected bool Equals(Account other)
     {
-        return Equals(_id, other._id) && _encryptedCreditCardNumber == other._encryptedCreditCardNumber && _fullName == other._fullName;
+        return Equals(_id, other._id) && _encryptedCreditCardNumber == other._encryptedCreditCardNumber &&
+               _fullName == other._fullName;
     }
 
     public override bool Equals(object obj)

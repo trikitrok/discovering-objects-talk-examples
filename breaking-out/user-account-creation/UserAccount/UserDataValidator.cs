@@ -20,8 +20,8 @@ public class UserDataValidator
 
     private class IdValidator
     {
-        private readonly Regex _dniRegex;
         private readonly Regex _cifRegex;
+        private readonly Regex _dniRegex;
         private readonly Regex _nieRegex;
 
         public IdValidator()
@@ -40,20 +40,11 @@ public class UserDataValidator
 
         private DocumentValidator GetIdType(string digits)
         {
-            if (_dniRegex.IsMatch(digits))
-            {
-                return new DniValidator(digits);
-            }
+            if (_dniRegex.IsMatch(digits)) return new DniValidator(digits);
 
-            if (_cifRegex.IsMatch(digits))
-            {
-                return new CifValidator(digits);
-            }
+            if (_cifRegex.IsMatch(digits)) return new CifValidator(digits);
 
-            if (_nieRegex.IsMatch(digits))
-            {
-                return new NieValidator(digits);
-            }
+            if (_nieRegex.IsMatch(digits)) return new NieValidator(digits);
 
             return new NotMatchingValidator();
         }
@@ -73,23 +64,24 @@ public class UserDataValidator
 
         private class CifValidator : DocumentValidator
         {
-            private readonly string _digits;
             private const string ControlLettersCif = "JABCDEFGHI";
 
-            private static readonly Regex CifRegex =
-                new Regex(@"^[ABCDEFGHJNPQRSUVW]\d{7}[A-J0-9]$", RegexOptions.IgnoreCase);
+            private static readonly Regex
+                CifRegex = new(@"^[ABCDEFGHJNPQRSUVW]\d{7}[A-J0-9]$", RegexOptions.IgnoreCase);
+
+            private readonly string _digits;
 
 
             public CifValidator(string digits)
             {
                 _digits = digits;
             }
-            
+
             public bool IsValid()
             {
                 return IsValidCif(_digits);
             }
-            
+
             private bool IsValidCif(string cif)
             {
                 if (!CifRegex.IsMatch(cif))
@@ -182,12 +174,12 @@ public class UserDataValidator
 
         private class DniValidator : DocumentValidator
         {
-            private readonly string _digits;
-
             private const string DniControlLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
 
             private static readonly Regex DniRegex =
-                new Regex(@"^([KLM]\d{7}|\d{8})[TRWAGMYFPDXBNJZSQVHLCKE]$", RegexOptions.IgnoreCase);
+                new(@"^([KLM]\d{7}|\d{8})[TRWAGMYFPDXBNJZSQVHLCKE]$", RegexOptions.IgnoreCase);
+
+            private readonly string _digits;
 
             public DniValidator(string digits)
             {
@@ -225,16 +217,16 @@ public class UserDataValidator
         public static bool Passes(string creditCardNumber)
         {
             if (string.IsNullOrWhiteSpace(creditCardNumber) || creditCardNumber.Any(c => !char.IsDigit(c)))
-            {
                 return false;
-            }
 
             return creditCardNumber
                 .Reverse()
                 .Select(c => c - '0')
-                .Select((digit, index) => index % 2 == 0 
-                    ? digit 
-                    : (digit * 2 > 9 ? digit * 2 - 9 : digit * 2))
+                .Select((digit, index) => index % 2 == 0
+                    ? digit
+                    : digit * 2 > 9
+                        ? digit * 2 - 9
+                        : digit * 2)
                 .Sum() % 10 == 0;
         }
     }

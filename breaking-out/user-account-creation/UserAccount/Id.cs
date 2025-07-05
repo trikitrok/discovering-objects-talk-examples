@@ -30,7 +30,7 @@ public class Id
 
     public override int GetHashCode()
     {
-        return (_digits != null ? _digits.GetHashCode() : 0);
+        return _digits != null ? _digits.GetHashCode() : 0;
     }
 
     public override string ToString()
